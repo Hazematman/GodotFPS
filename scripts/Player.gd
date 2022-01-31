@@ -5,9 +5,10 @@ var minLookAngle : float = -90.0
 var maxLookAngle : float = 90.0
 var lookSensitivity : float = 10.0
 
-var gravity : float = 12.0
+export var gravity : float = 12.0
 
-var speed : float = 1000.0
+export var speed : float = 500.0
+var sprintFactor : float = 2.0
 var velocity : Vector3 = Vector3()
 
 onready var camera = $camera
@@ -27,6 +28,7 @@ func _input(event):
 func _physics_process(delta):
 	var forward = global_transform.basis.z
 	var right = global_transform.basis.x
+	var speedMultipler = 1.0
 	
 	velocity.x = 0
 	velocity.z = 0
@@ -42,12 +44,13 @@ func _physics_process(delta):
 	elif Input.is_action_pressed("move_left"):
 		movementDir.x = -1
 		
-	movementDir = (movementDir.z * forward) + (movementDir * right)
+	if Input.is_action_pressed("run"):
+		speedMultipler = sprintFactor
+		
+	movementDir = (movementDir.z * forward) + (movementDir.x * right)
 	movementDir = movementDir.normalized()
 	
-	
-	
-	var movementSpeed = speed * delta * movementDir
+	var movementSpeed = speedMultipler * speed * delta * movementDir
 	
 	velocity.x = movementSpeed.x
 	velocity.z = movementSpeed.z
