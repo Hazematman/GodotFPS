@@ -14,6 +14,10 @@ config/name="TestFPS"
 run/main_scene="res://scenes/MainMenu.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Networking="*res://scripts/Networking.gd"
+
 [gdnative]
 
 singletons=[  ]

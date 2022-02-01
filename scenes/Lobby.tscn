@@ -42,6 +42,9 @@ margin_left = 85.0
 margin_top = -19.0
 margin_right = 267.0
 margin_bottom = 36.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="serverPortLabel" type="Label" parent="."]
 margin_left = 393.0

@@ -19,30 +19,24 @@ func get_ip():
 	currentIp = ipEdit.text
 	
 func set_callbacks():
+	# warning-ignore:return_value_discarded
 	get_tree().connect("network_peer_connected", self, "_player_connected")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	servBut.connect("pressed", self, "_on_servBut_pressed")
-	clientBut.connect("pressed", self, "_on_clientBut_pressed")
 	portEdit.text = str(defaultPort)
+	
+	clientBut.connect("button_down", self, "_on_clientBut_pressed")
+	servBut.connect("button_down", self, "_on_servBut_pressed")
 
 func _on_servBut_pressed():
 	get_port()
-	print("Creating Server at %d" % currentPort)
-	var peer = NetworkedMultiplayerENet.new()
-	peer.create_server(currentPort, maxPlayers)
-	get_tree().network_peer = peer
-	set_callbacks()
+	Networking.create_server(currentPort, maxPlayers)
 	
 func _on_clientBut_pressed():
 	get_port()
 	get_ip()
-	print("Joining Server at %s:%d" % [currentIp, currentPort])
-	var peer = NetworkedMultiplayerENet.new()
-	peer.create_client(currentIp, currentPort)
-	get_tree().network_peer = peer
-	set_callbacks()
+	Networking.join_server(currentIp, currentPort)
 
 func _player_connected(id):
 	print("Player joined %d" % id)
