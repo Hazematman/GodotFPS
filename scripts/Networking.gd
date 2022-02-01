@@ -7,6 +7,7 @@ var currentPort : int = 5678
 var connected : bool = false
 
 var players = {}
+var world : Node = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -24,15 +25,35 @@ func _ready():
 func reset_network_connection() -> void:
 	if get_tree().has_network_peer():
 		get_tree().network_peer = null
+		
+func add_player(id : int) -> void:
+	if world == null:
+		set_gameworld(get_tree().get_network_unique_id())
+		
+	var me : Node = load("res://scenes/Player.tscn").instance()
+	me.name = str(id)
+	me.set_network_master(id)
+	world.add_child(me)
+		
+func set_gameworld(id : int) -> void:
+	if world == null:
+		# Load game world and switch to it
+		world = load("res://scenes/Spatial.tscn").instance()
+		get_tree().get_root().add_child(world)
+		get_tree().get_root().get_node("MainMenu").hide()
 
-func create_server(port : int, players : int = 4) -> void:
+func create_server(port : int, maximumPlayers : int = 4) -> void:
 	currentIP = "localhost"
 	currentPort = port
-	maxPlayers = players
+	maxPlayers = maximumPlayers
 	print("Creating Server at %d" % currentPort)
 	var peer = NetworkedMultiplayerENet.new()
 	peer.create_server(currentPort, maxPlayers)
 	get_tree().network_peer = peer
+	
+	connected = true
+	set_gameworld(get_tree().get_network_unique_id())
+	add_player(get_tree().get_network_unique_id())
 	
 func join_server(ip : String, port : int) -> void:
 	currentIP = ip
@@ -44,6 +65,9 @@ func join_server(ip : String, port : int) -> void:
 
 func _connected_to_server() -> void:
 	connected = true
+	print("Connected")
+	set_gameworld(get_tree().get_network_unique_id())
+	add_player(get_tree().get_network_unique_id())
 
 func _connection_failed() -> void:
 	reset_network_connection()
@@ -51,11 +75,12 @@ func _connection_failed() -> void:
 func _server_disconnected() -> void:
 	reset_network_connection()
 	
-func _player_connected(id) -> void:
+func _player_connected(id : int) -> void:
 	print("Player %d has connected" % id)
+	add_player(id)
 	
-func _player_disconnected(id) -> void:
-	pass
+func _player_disconnected(id : int) -> void:
+	players.erase(id)
 	
 func instance_node_at_location(node: Object, parent: Object, location: Vector2) -> Object:
 	var node_instance = instance_node(node, parent)
