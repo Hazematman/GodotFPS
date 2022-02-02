@@ -35,7 +35,7 @@ func add_player(id : int) -> void:
 	me.set_network_master(id)
 	world.add_child(me)
 		
-func set_gameworld(id : int) -> void:
+func set_gameworld(_id : int) -> void:
 	if world == null:
 		# Load game world and switch to it
 		world = load("res://scenes/Spatial.tscn").instance()

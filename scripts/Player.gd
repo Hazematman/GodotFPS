@@ -7,20 +7,29 @@ var lookSensitivity : float = 10.0
 
 export var gravity : float = 12.0
 
+var jumpSpeed : float = 6
+
 export var speed : float = 500.0
 var sprintFactor : float = 2.0
 var velocity : Vector3 = Vector3()
 
+var mouseFocus : bool = false
+
 puppet var puppetPosition = Vector3()
 puppet var puppetVelocity = Vector3()
+puppet var puppetRotation = Vector3()
 
 onready var camera : Camera = $camera
+onready var model : Node = $PlayerModel
+onready var fpsModel : Node = $camera/rifle
 
 func _ready():
 	if is_network_master():
 		print("Master")
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		mouseFocus = true
 		camera.set_current(true)
+		model.hide()
 	else:
 		camera.set_current(false)
 		print("Not master")
@@ -33,8 +42,10 @@ func _input(event):
 			mouseRelative = event.relative
 		elif Input.is_action_pressed("ui_cancel"):
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			mouseFocus = false
 		elif Input.is_action_pressed("fire"):
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+			mouseFocus = true
 
 func _physics_process(delta):
 	if is_network_master():
@@ -59,6 +70,9 @@ func _physics_process(delta):
 		if Input.is_action_pressed("run"):
 			speedMultipler = sprintFactor
 			
+		if Input.is_action_pressed("jump") and is_on_floor():
+			velocity.y = jumpSpeed
+			
 		movementDir = (movementDir.z * forward) + (movementDir.x * right)
 		movementDir = movementDir.normalized()
 		
@@ -73,19 +87,22 @@ func _physics_process(delta):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if is_network_master():
-		# rotate the camera along the x axis
-		camera.rotation_degrees.x -= mouseRelative.y * lookSensitivity * delta
-		# clamp camera x rotation axis
-		camera.rotation_degrees.x = clamp(camera.rotation_degrees.x, minLookAngle, maxLookAngle)
-		# rotate the player along their y-axis
-		rotation_degrees.y -= mouseRelative.x * lookSensitivity * delta
-		# reset the mouseDelta vector
-		mouseRelative = Vector2()
+		if mouseFocus:
+			# rotate the camera along the x axis
+			camera.rotation_degrees.x -= mouseRelative.y * lookSensitivity * delta
+			# clamp camera x rotation axis
+			camera.rotation_degrees.x = clamp(camera.rotation_degrees.x, minLookAngle, maxLookAngle)
+			# rotate the player along their y-axis
+			rotation_degrees.y -= mouseRelative.x * lookSensitivity * delta
+			# reset the mouseDelta vector
+			mouseRelative = Vector2()
 		
 		var position : Vector3 = translation
 		
 		#print("I am %d calling to %s" % [get_tree().get_network_unique_id(), name])
 		rset("puppetPosition", position)
 		rset("puppetVelocity", velocity)
+		rset("puppetRotation", rotation_degrees)
 	else:
 		translation = puppetPosition
+		rotation_degrees = puppetRotation
