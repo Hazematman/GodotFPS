@@ -14,6 +14,7 @@ var sprintFactor : float = 2.0
 var velocity : Vector3 = Vector3()
 
 var mouseFocus : bool = false
+var bulletRange : float = 100.0
 
 puppet var puppetPosition = Vector3()
 puppet var puppetVelocity = Vector3()
@@ -96,6 +97,9 @@ func _process(delta):
 			rotation_degrees.y -= mouseRelative.x * lookSensitivity * delta
 			# reset the mouseDelta vector
 			mouseRelative = Vector2()
+			
+			if Input.is_action_just_pressed("fire"):
+				shoot()
 		
 		var position : Vector3 = translation
 		
@@ -106,3 +110,14 @@ func _process(delta):
 	else:
 		translation = puppetPosition
 		rotation_degrees = puppetRotation
+
+func shoot():
+	print("shoot")
+	var displayMid = 0.5 * (get_viewport().get_size())
+	var space_state = get_world().direct_space_state
+	var from = camera.project_ray_origin(displayMid)
+	var to = from + camera.project_ray_normal(displayMid) * bulletRange
+
+	var result = space_state.intersect_ray(from, to)
+	if result and result.collider.has_method("hit"):
+		result.collider.hit()
