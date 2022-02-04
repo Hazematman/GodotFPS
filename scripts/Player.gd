@@ -23,6 +23,7 @@ puppet var puppetRotation = Vector3()
 onready var camera : Camera = $camera
 onready var model : Node = $PlayerModel
 onready var fpsModel : Node = $camera/rifle
+onready var hud : Node = $Sprite
 
 func _ready():
 	if is_network_master():
@@ -31,6 +32,8 @@ func _ready():
 		mouseFocus = true
 		camera.set_current(true)
 		model.hide()
+		
+		get_viewport().connect("size_changed", self, "resizeUI")
 	else:
 		camera.set_current(false)
 		print("Not master")
@@ -111,8 +114,10 @@ func _process(delta):
 		translation = puppetPosition
 		rotation_degrees = puppetRotation
 
+func resizeUI():
+	hud.position = 0.5 * get_viewport().get_size()
+
 func shoot():
-	print("shoot")
 	var displayMid = 0.5 * (get_viewport().get_size())
 	var space_state = get_world().direct_space_state
 	var from = camera.project_ray_origin(displayMid)
