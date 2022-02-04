@@ -13,8 +13,8 @@ export var speed : float = 500.0
 var sprintFactor : float = 2.0
 var velocity : Vector3 = Vector3()
 
-var mouseFocus : bool = false
 var bulletRange : float = 100.0
+var interactRange : float = 1.0
 
 puppet var puppetPosition = Vector3()
 puppet var puppetVelocity = Vector3()
@@ -28,14 +28,14 @@ onready var hud : Node = $Sprite
 func _ready():
 	if is_network_master():
 		print("Master")
-		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-		mouseFocus = true
 		camera.set_current(true)
 		model.hide()
 		
+		# warning-ignore:return_value_discarded
 		get_viewport().connect("size_changed", self, "resizeUI")
 	else:
 		camera.set_current(false)
+		hud.hide()
 		print("Not master")
 	
 	puppetPosition = Vector3(0, 2.75, 0)
@@ -44,12 +44,6 @@ func _input(event):
 	if is_network_master():
 		if event is InputEventMouseMotion:
 			mouseRelative = event.relative
-		elif Input.is_action_pressed("ui_cancel"):
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			mouseFocus = false
-		elif Input.is_action_pressed("fire"):
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-			mouseFocus = true
 
 func _physics_process(delta):
 	if is_network_master():
@@ -91,7 +85,7 @@ func _physics_process(delta):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if is_network_master():
-		if mouseFocus:
+		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 			# rotate the camera along the x axis
 			camera.rotation_degrees.x -= mouseRelative.y * lookSensitivity * delta
 			# clamp camera x rotation axis
@@ -103,6 +97,9 @@ func _process(delta):
 			
 			if Input.is_action_just_pressed("fire"):
 				shoot()
+			if Input.is_action_pressed("interact"):
+				interact()
+				return
 		
 		var position : Vector3 = translation
 		
@@ -116,13 +113,21 @@ func _process(delta):
 
 func resizeUI():
 	hud.position = 0.5 * get_viewport().get_size()
-
-func shoot():
+	
+func castray(distance):
 	var displayMid = 0.5 * (get_viewport().get_size())
 	var space_state = get_world().direct_space_state
 	var from = camera.project_ray_origin(displayMid)
-	var to = from + camera.project_ray_normal(displayMid) * bulletRange
+	var to = from + camera.project_ray_normal(displayMid) * distance
+	
+	return space_state.intersect_ray(from, to)
 
-	var result = space_state.intersect_ray(from, to)
+func interact():
+	var result = castray(interactRange)
+	if result and result.collider.has_method("engage"):
+		result.collider.engage(self)
+
+func shoot():
+	var result = castray(bulletRange)
 	if result and result.collider.has_method("hit"):
 		result.collider.hit()
