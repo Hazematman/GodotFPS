@@ -12,6 +12,8 @@ var meInside : bool = false
 var maxSpeed : float = 2000.0
 var speedStep : float = 500.0
 var speed : float = 0.0
+var velocity : Vector3 = Vector3()
+var gravity : float = -12.0
 
 var turnSpeed : float = 100.0
 var pitchSpeed : float = 100.0
@@ -20,16 +22,16 @@ var takeOffSpeed : float = 500.0
 
 onready var camera : Camera = $Camera
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
 remotesync func addPlayer(playerId):
 	if inside == null:
 		insideId = playerId
 		var player = get_parent().get_node(str(playerId))
 		inside = player
 		player.get_parent().remove_child(player)
+		
+remote func setPos(position, _velocity, rotation):
+	translation = position
+	rotation_degrees = rotation
 
 func engage(player):
 	if inside == null:
@@ -56,14 +58,16 @@ func _physics_process(delta):
 				rotation_degrees.x += delta * pitchSpeed
 		
 		var forward = global_transform.basis.z
-		var right = global_transform.basis.x
+		var _right = global_transform.basis.x
 		
-		var velocity = delta * speed * forward
-		
+		var newVelocity = delta * speed * forward
+		  
 		if speed < 100.0:
-			velocity.y = -12 * delta
+			newVelocity.y = velocity.y + gravity * delta
 			
-		move_and_slide(velocity, Vector3.UP)
+		velocity = move_and_slide(newVelocity, Vector3.UP)
+		
+		rpc("setPos", translation, velocity, rotation_degrees)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
