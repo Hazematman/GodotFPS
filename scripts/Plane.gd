@@ -1,10 +1,5 @@
 extends KinematicBody
 
-
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
 var insideId : int = 0
 var inside : Node = null
 var meInside : bool = false
@@ -22,6 +17,10 @@ var takeOffSpeed : float = 500.0
 
 onready var camera : Camera = $Camera
 
+func _ready():
+	# Set network master to host system
+	set_network_master(1)
+
 remotesync func addPlayer(playerId):
 	if inside == null:
 		insideId = playerId
@@ -29,9 +28,23 @@ remotesync func addPlayer(playerId):
 		inside = player
 		player.get_parent().remove_child(player)
 		
-remote func setPos(position, _velocity, rotation):
+remotesync func removePlayer(_playerId):
+	if inside != null:
+		insideId = 0
+		var player = inside
+		inside = null
+		get_parent().add_child(player)
+		player.rpc("removeVeh", translation)
+		speed = 0
+		
+remotesync func setControl(_position, vel, rot):
+	velocity = vel
+	rotation_degrees = rot
+
+remote func setPos(position, newVelocity, rotation):
 	translation = position
 	rotation_degrees = rotation
+	velocity = newVelocity
 
 func engage(player):
 	if inside == null:
@@ -41,27 +54,33 @@ func engage(player):
 
 func _physics_process(delta):
 	if meInside:
+		var newRotation = rotation_degrees
 		if Input.is_action_pressed("accelerate"):
 			speed = min(speed+speedStep*delta, maxSpeed)
 		elif Input.is_action_pressed("deccelerate"):
 			speed = max(speed-speedStep*delta, 0)
 			
 		if Input.is_action_pressed("move_left"):
-			rotation_degrees.y += delta * turnSpeed
+			newRotation.y += delta * turnSpeed
 		elif Input.is_action_pressed("move_right"):
-			rotation_degrees.y -= delta * turnSpeed
+			newRotation.y -= delta * turnSpeed
 		
 		if speed >= takeOffSpeed or !is_on_floor():
 			if Input.is_action_pressed("pitch_up"):
-				rotation_degrees.x -= delta * pitchSpeed
+				newRotation.x -= delta * pitchSpeed
 			elif Input.is_action_pressed("pitch_down"):
-				rotation_degrees.x += delta * pitchSpeed
+				newRotation.x += delta * pitchSpeed
 		
 		var forward = global_transform.basis.z
 		var _right = global_transform.basis.x
 		
 		var newVelocity = delta * speed * forward
-		  
+		
+		rpc_id(1, "setControl", translation, newVelocity, newRotation)
+	
+	if is_network_master():
+		var newVelocity = velocity
+		
 		if speed < 100.0:
 			newVelocity.y = velocity.y + gravity * delta
 			
@@ -69,6 +88,9 @@ func _physics_process(delta):
 		
 		rpc("setPos", translation, velocity, rotation_degrees)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func _process(_delta):
+	if meInside:
+		if Input.is_action_just_pressed("interact"):
+			rpc("removePlayer", inside.get_network_master())
+			camera.set_current(false)
+			meInside = false

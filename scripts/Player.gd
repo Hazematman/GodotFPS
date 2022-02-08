@@ -97,14 +97,11 @@ func _process(delta):
 			
 			if Input.is_action_just_pressed("fire"):
 				shoot()
-			if Input.is_action_pressed("interact"):
+			if Input.is_action_just_pressed("interact"):
 				interact()
 				return
 		
-		var position : Vector3 = translation
-		
-		#print("I am %d calling to %s" % [get_tree().get_network_unique_id(), name])
-		rset("puppetPosition", position)
+		rset("puppetPosition", translation)
 		rset("puppetVelocity", velocity)
 		rset("puppetRotation", rotation_degrees)
 	else:
@@ -131,3 +128,6 @@ func shoot():
 	var result = castray(bulletRange)
 	if result and result.collider.has_method("hit"):
 		result.collider.hit()
+		
+remotesync func removeVeh(location):
+	translation = location + Vector3(0, 3, 0)
