@@ -350,6 +350,20 @@ tracks/46/keys = {
 "method": "start"
 } ]
 }
+tracks/47/type = "method"
+tracks/47/path = NodePath("Root/Skeleton/BackIK")
+tracks/47/interp = 1
+tracks/47/loop_wrap = true
+tracks/47/imported = false
+tracks/47/enabled = true
+tracks/47/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ false ],
+"method": "start"
+} ]
+}
 
 [sub_resource type="Animation" id=4]
 resource_name = "Run"
@@ -691,6 +705,20 @@ tracks/46/loop_wrap = true
 tracks/46/imported = false
 tracks/46/enabled = true
 tracks/46/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ false ],
+"method": "start"
+} ]
+}
+tracks/47/type = "method"
+tracks/47/path = NodePath("Root/Skeleton/BackIK")
+tracks/47/interp = 1
+tracks/47/loop_wrap = true
+tracks/47/imported = false
+tracks/47/enabled = true
+tracks/47/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "values": [ {
@@ -1046,35 +1074,62 @@ tracks/46/keys = {
 "method": "start"
 } ]
 }
+tracks/47/type = "method"
+tracks/47/path = NodePath("Root/Skeleton/BackIK")
+tracks/47/interp = 1
+tracks/47/loop_wrap = true
+tracks/47/imported = false
+tracks/47/enabled = true
+tracks/47/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ false ],
+"method": "start"
+} ]
+}
 
 [node name="myCharVersion" instance=ExtResource( 1 )]
 
-[node name="BoneAttachment" type="BoneAttachment" parent="Root/Skeleton" index="1"]
-transform = Transform( -0.00135434, 0.150981, -0.98854, -0.977345, -0.209436, -0.0306486, -0.211662, 0.966099, 0.147844, -0.358716, 2.11629, 0.716813 )
-bone_name = "RightHand"
+[node name="Skeleton" parent="Root" index="0"]
+bones/31/bound_children = [ NodePath("BoneAttachment") ]
 
-[node name="LeftHandPos" type="Position3D" parent="Root/Skeleton/BoneAttachment" index="0"]
-transform = Transform( 0.283891, 0.186263, -0.940599, -0.951238, -0.0686814, -0.300707, -0.120605, 0.980094, 0.157686, -0.127718, 0.719539, -0.0429306 )
-
-[node name="rifle" parent="Root/Skeleton/BoneAttachment" index="1" instance=ExtResource( 2 )]
-transform = Transform( 0.02974, -0.595826, -0.0640892, 0.112035, -0.0575083, 0.586635, -0.588696, -0.0410445, 0.108405, -0.0431271, 0.005362, -0.0975366 )
-
-[node name="RightHandIK" type="SkeletonIK" parent="Root/Skeleton" index="2"]
+[node name="RightHandIK" type="SkeletonIK" parent="Root/Skeleton" index="1"]
 process_priority = 1
 root_bone = "RightArm"
 tip_bone = "RightHand"
-target_node = NodePath("../RightHandPos")
+target_node = NodePath("../BackPos/RightHandPos")
 
-[node name="RightHandPos" type="Position3D" parent="Root/Skeleton" index="3"]
-transform = Transform( -0.000948023, 0.105687, -0.691978, -0.684143, -0.146601, -0.0214513, -0.148164, 0.676269, 0.103496, -0.358354, 2.11729, 0.718561 )
-
-[node name="LeftHandIK" type="SkeletonIK" parent="Root/Skeleton" index="4"]
+[node name="LeftHandIK" type="SkeletonIK" parent="Root/Skeleton" index="2"]
 process_priority = 1
 root_bone = "LeftArm"
 tip_bone = "LeftHand"
 target_node = NodePath("../BoneAttachment/LeftHandPos")
 
+[node name="BackIK" type="SkeletonIK" parent="Root/Skeleton" index="3"]
+process_priority = 1
+root_bone = "Hips"
+tip_bone = "Chest"
+target_node = NodePath("../BackPos")
+
+[node name="BackPos" type="Position3D" parent="Root/Skeleton" index="4"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.21921, 0 )
+
+[node name="RightHandPos" type="Position3D" parent="Root/Skeleton/BackPos" index="0"]
+transform = Transform( -0.000948023, 0.105687, -0.691978, -0.684143, -0.146601, -0.0214513, -0.148164, 0.676269, 0.103496, -0.358354, 0.00464582, 0.657015 )
+
+[node name="BoneAttachment" type="BoneAttachment" parent="Root/Skeleton" index="5"]
+transform = Transform( -0.00135422, 0.150981, -0.988539, -0.977345, -0.209436, -0.0306486, -0.211662, 0.9661, 0.147844, -0.361117, 2.21865, 0.653501 )
+bone_name = "RightHand"
+
+[node name="LeftHandPos" type="Position3D" parent="Root/Skeleton/BoneAttachment" index="0"]
+transform = Transform( 0.277139, -0.0205936, -0.960616, -0.954988, -0.115982, -0.273033, -0.105784, 0.993035, -0.0518099, -0.0946779, 0.577517, -0.0991922 )
+
+[node name="rifle" parent="Root/Skeleton/BoneAttachment" index="1" instance=ExtResource( 2 )]
+transform = Transform( 0.0392086, -0.495639, -0.0529621, 0.0270916, -0.0509282, 0.496661, -0.497724, -0.0418164, 0.0228617, -0.109417, 0.0393817, -0.0922504 )
+
 [node name="Animations" type="AnimationPlayer" parent="." index="1"]
+autoplay = "Run"
 anims/Idle = SubResource( 3 )
 anims/Run = SubResource( 4 )
 anims/Walk = SubResource( 5 )

@@ -1,5 +1,12 @@
 extends KinematicBody
 
+enum PlayerState {
+	IDLE,
+	WALKING,
+	RUNNING,
+	SHOOTING,
+}
+
 var mouseRelative : Vector2 = Vector2()
 var minLookAngle : float = -90.0
 var maxLookAngle : float = 90.0
@@ -15,14 +22,18 @@ var velocity : Vector3 = Vector3()
 
 var bulletRange : float = 100.0
 var interactRange : float = 1.0
+var state = PlayerState.IDLE
 
 puppet var puppetPosition = Vector3()
 puppet var puppetVelocity = Vector3()
 puppet var puppetRotation = Vector3()
+puppet var puppetLookRot : float = 0
+puppet var puppetState = PlayerState.IDLE
 
 onready var camera : Camera = $camera
 onready var model : Node = $PlayerModel
 onready var anims : AnimationPlayer = $PlayerModel/Animations
+onready var backCtl : Position3D = $PlayerModel/Root/Skeleton/BackPos
 onready var fpsModel : Node = $camera/rifle
 onready var hud : Node = $Sprite
 
@@ -73,6 +84,14 @@ func _physics_process(delta):
 		if Input.is_action_pressed("jump") and is_on_floor():
 			velocity.y = jumpSpeed
 			
+		if movementDir.length_squared() > 0:
+			if speedMultipler == sprintFactor:
+				state = PlayerState.RUNNING
+			else:
+				state = PlayerState.WALKING
+		else:
+			state = PlayerState.IDLE
+			
 		movementDir = (movementDir.z * forward) + (movementDir.x * right)
 		movementDir = movementDir.normalized()
 		
@@ -106,14 +125,20 @@ func _process(delta):
 		rset("puppetPosition", translation)
 		rset("puppetVelocity", velocity)
 		rset("puppetRotation", rotation_degrees)
+		rset("puppetLookRot", camera.rotation_degrees.x)
+		rset("puppetState", state)
 	else:
 		translation = puppetPosition
 		rotation_degrees = puppetRotation
 		velocity = puppetVelocity
+		state = puppetState
 		
-		if velocity.length() > speed:
+		backCtl.rotation_degrees.x = -puppetLookRot
+		
+		if state == PlayerState.RUNNING:
+			print("Running")
 			anims.play("Run", -1, 2)
-		elif velocity.length() > 0.1:
+		elif state == PlayerState.WALKING:
 			anims.play("Walk", -1, 2)
 		else:
 			anims.play("Idle")
