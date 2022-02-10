@@ -1119,7 +1119,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.21921, 0 )
 transform = Transform( -0.000948023, 0.105687, -0.691978, -0.684143, -0.146601, -0.0214513, -0.148164, 0.676269, 0.103496, -0.358354, 0.00464582, 0.657015 )
 
 [node name="BoneAttachment" type="BoneAttachment" parent="Root/Skeleton" index="5"]
-transform = Transform( -0.00135422, 0.150981, -0.988539, -0.977345, -0.209436, -0.0306486, -0.211662, 0.9661, 0.147844, -0.361117, 2.21865, 0.653501 )
+transform = Transform( -0.00135434, 0.150981, -0.98854, -0.977345, -0.209436, -0.0306486, -0.211662, 0.966099, 0.147844, -0.361117, 2.21865, 0.653501 )
 bone_name = "RightHand"
 
 [node name="LeftHandPos" type="Position3D" parent="Root/Skeleton/BoneAttachment" index="0"]
