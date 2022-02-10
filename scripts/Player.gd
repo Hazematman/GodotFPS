@@ -22,6 +22,7 @@ puppet var puppetRotation = Vector3()
 
 onready var camera : Camera = $camera
 onready var model : Node = $PlayerModel
+onready var anims : AnimationPlayer = $PlayerModel/Animations
 onready var fpsModel : Node = $camera/rifle
 onready var hud : Node = $Sprite
 
@@ -36,6 +37,7 @@ func _ready():
 	else:
 		camera.set_current(false)
 		hud.hide()
+		fpsModel.hide()
 		print("Not master")
 	
 	puppetPosition = Vector3(0, 2.75, 0)
@@ -107,7 +109,15 @@ func _process(delta):
 	else:
 		translation = puppetPosition
 		rotation_degrees = puppetRotation
-
+		velocity = puppetVelocity
+		
+		if velocity.length() > speed:
+			anims.play("Run", -1, 2)
+		elif velocity.length() > 0.1:
+			anims.play("Walk", -1, 2)
+		else:
+			anims.play("Idle")
+		
 func resizeUI():
 	hud.position = 0.5 * get_viewport().get_size()
 	

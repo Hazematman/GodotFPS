@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://assets/playerModel.tscn" type="PackedScene" id=1]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.751483, 0, -0.659752, 0, 1, 0, 0.659752, 0, 0.751483, -2.36079, 2.50806, 4.09198 )
+
+[node name="myCharVersion" parent="." instance=ExtResource( 1 )]
