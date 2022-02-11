@@ -1093,9 +1093,6 @@ tracks/47/keys = {
 [node name="myCharVersion" instance=ExtResource( 1 )]
 script = ExtResource( 3 )
 
-[node name="Skeleton" parent="Root" index="0"]
-bones/31/bound_children = [ NodePath("BoneAttachment") ]
-
 [node name="RightHandIK" type="SkeletonIK" parent="Root/Skeleton" index="1"]
 process_priority = 1
 root_bone = "RightArm"
