@@ -34,6 +34,8 @@ func add_player(id : int) -> void:
 	me.name = str(id)
 	me.set_network_master(id)
 	world.add_child(me)
+	
+	players[id] = me
 		
 func set_gameworld(_id : int) -> void:
 	if world == null:
@@ -41,6 +43,13 @@ func set_gameworld(_id : int) -> void:
 		world = load("res://scenes/Spatial.tscn").instance()
 		get_tree().get_root().add_child(world)
 		get_tree().get_root().get_node("MainMenu").hide()
+
+func set_menu() -> void:
+	if world != null:
+		get_tree().get_root().remove_child(world)
+		get_tree().get_root().get_node("MainMenu").show()
+		world.queue_free()
+		world = null
 
 func create_server(port : int, maximumPlayers : int = 4) -> void:
 	currentIP = "localhost"
@@ -71,15 +80,21 @@ func _connected_to_server() -> void:
 
 func _connection_failed() -> void:
 	reset_network_connection()
+	set_menu()
 
 func _server_disconnected() -> void:
 	reset_network_connection()
+	set_menu()
 	
 func _player_connected(id : int) -> void:
 	print("Player %d has connected" % id)
 	add_player(id)
 	
 func _player_disconnected(id : int) -> void:
+	if players[id].vehicle != null:
+		players[id].vehicle.removeFromVeh()
+		
+	players[id].queue_free()
 	players.erase(id)
 	
 func instance_node_at_location(node: Object, parent: Object, location: Vector2) -> Object:

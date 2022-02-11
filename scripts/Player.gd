@@ -24,6 +24,8 @@ var bulletRange : float = 100.0
 var interactRange : float = 1.0
 var state = PlayerState.IDLE
 
+var vehicle : Node = null
+
 puppet var puppetPosition = Vector3()
 puppet var puppetVelocity = Vector3()
 puppet var puppetRotation = Vector3()

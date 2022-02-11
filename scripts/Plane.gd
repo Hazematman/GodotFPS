@@ -27,15 +27,23 @@ remotesync func addPlayer(playerId):
 		var player = get_parent().get_node(str(playerId))
 		inside = player
 		player.get_parent().remove_child(player)
+		player.vehicle = self
 		
-remotesync func removePlayer(_playerId):
+func removeFromVeh():
 	if inside != null:
 		insideId = 0
 		var player = inside
 		inside = null
+		player.vehicle = null
 		get_parent().add_child(player)
-		player.rpc("removeVeh", translation)
 		speed = 0
+		return player
+	return null
+		
+remotesync func removePlayer(_playerId):
+	if inside != null:
+		var player = removeFromVeh()
+		player.rpc("removeVeh", translation)
 		
 remotesync func setControl(_position, vel, rot):
 	velocity = vel
