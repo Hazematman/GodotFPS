@@ -3,7 +3,8 @@ extends Spatial
 
 export var playIK = false setget do_playIK
 
-
+func _ready():
+	playIK = false
 
 func do_playIK(play):
 	playIK = play

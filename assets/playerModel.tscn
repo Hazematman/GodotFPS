@@ -1092,7 +1092,6 @@ tracks/47/keys = {
 
 [node name="myCharVersion" instance=ExtResource( 1 )]
 script = ExtResource( 3 )
-playIK = true
 
 [node name="Skeleton" parent="Root" index="0"]
 bones/31/bound_children = [ NodePath("BoneAttachment") ]
@@ -1122,11 +1121,11 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.21921, 0 )
 transform = Transform( -0.000948023, 0.105687, -0.691978, -0.684143, -0.146601, -0.0214513, -0.148164, 0.676269, 0.103496, -0.358354, 0.00464582, 0.560749 )
 
 [node name="BoneAttachment" type="BoneAttachment" parent="Root/Skeleton" index="5"]
-transform = Transform( -0.00135434, 0.150982, -0.988538, -0.977344, -0.209436, -0.0306487, -0.211662, 0.966098, 0.147844, -0.360042, 2.22071, 0.55771 )
+transform = Transform( 0.0598075, -0.226333, -0.972222, 0.32768, -0.915535, 0.233293, -0.942894, -0.332528, 0.0194083, -0.665538, 1.36644, -0.077947 )
 bone_name = "RightHand"
 
 [node name="LeftHandPos" type="Position3D" parent="Root/Skeleton/BoneAttachment" index="0"]
-transform = Transform( 0.277139, -0.0205936, -0.960616, -0.954988, -0.115982, -0.273033, -0.105784, 0.993035, -0.0518099, -0.0758169, 0.491429, -0.112366 )
+transform = Transform( 0.257831, 0.181687, -0.948959, -0.891768, 0.422738, -0.161357, 0.371849, 0.887849, 0.271021, -0.15086, 0.487693, -0.195392 )
 
 [node name="rifle" parent="Root/Skeleton/BoneAttachment" index="1" instance=ExtResource( 2 )]
 transform = Transform( 0.0392086, -0.495639, -0.0529621, 0.0270916, -0.0509282, 0.496661, -0.497724, -0.0418164, 0.0228617, -0.109417, 0.0393817, -0.0922504 )
