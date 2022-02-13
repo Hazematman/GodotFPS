@@ -12,11 +12,11 @@ var minLookAngle : float = -90.0
 var maxLookAngle : float = 90.0
 var lookSensitivity : float = 10.0
 
-export var gravity : float = 12.0
+export var gravity : float = 40
+var maxAngle : float = 30.0
+var jumpSpeed : float = 20
 
-var jumpSpeed : float = 6
-
-export var speed : float = 500.0
+export var speed : float = 8.0
 var sprintFactor : float = 2.0
 var velocity : Vector3 = Vector3()
 
@@ -25,6 +25,8 @@ var interactRange : float = 1.0
 var state = PlayerState.IDLE
 
 var vehicle : Node = null
+
+var jumping : bool = false
 
 puppet var puppetPosition = Vector3()
 puppet var puppetVelocity = Vector3()
@@ -62,12 +64,25 @@ func _input(event):
 
 func _physics_process(delta):
 	if is_network_master():
+		
+		# Prevent player from walking up surfaces that are too steep
+		var onSteep = false
+		for i in get_slide_count():
+			var collision = get_slide_collision(i)
+			var angle = collision.normal.angle_to(Vector3.UP)
+			if rad2deg(angle) > maxAngle:
+				onSteep = true
+				break
+		
 		var forward = global_transform.basis.z
 		var right = global_transform.basis.x
 		var speedMultipler = 1.0
 		
 		velocity.x = 0
 		velocity.z = 0
+		
+		if jumping and is_on_floor():
+			jumping = false
 		
 		var movementDir = Vector3()
 		if Input.is_action_pressed("move_forward"):
@@ -85,6 +100,7 @@ func _physics_process(delta):
 			
 		if Input.is_action_pressed("jump") and is_on_floor():
 			velocity.y = jumpSpeed
+			jumping = true
 			
 		if movementDir.length_squared() > 0:
 			if speedMultipler == sprintFactor:
@@ -97,15 +113,21 @@ func _physics_process(delta):
 		movementDir = (movementDir.z * forward) + (movementDir.x * right)
 		movementDir = movementDir.normalized()
 		
-		var movementSpeed = speedMultipler * speed * delta * movementDir
+		var movementSpeed = speedMultipler * speed * movementDir
 		
-		velocity.x = movementSpeed.x
-		velocity.z = movementSpeed.z
+		if not onSteep:
+			velocity.x = movementSpeed.x
+			velocity.z = movementSpeed.z
+		else:
+			velocity.x = 0
+			velocity.y = 0
+			
 		velocity.y -= gravity * delta
 		
-		velocity = move_and_slide(velocity, Vector3.UP)
+		
+		var snap = Vector3.DOWN if not jumping else Vector3.ZERO
+		velocity = move_and_slide_with_snap(velocity, snap, Vector3.UP, true, 4, deg2rad(maxAngle))
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if is_network_master():
 		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:

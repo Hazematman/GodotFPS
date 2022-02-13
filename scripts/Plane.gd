@@ -4,11 +4,11 @@ var insideId : int = 0
 var inside : Node = null
 var meInside : bool = false
 
-var maxSpeed : float = 2000.0
-var speedStep : float = 500.0
+var maxSpeed : float = 500.0
+var speedStep : float = 100.0
 var speed : float = 0.0
 var velocity : Vector3 = Vector3()
-var gravity : float = -12.0
+var gravity : float = -40
 
 var turnSpeed : float = 100.0
 var pitchSpeed : float = 100.0
@@ -82,7 +82,7 @@ func _physics_process(delta):
 		var forward = global_transform.basis.z
 		var _right = global_transform.basis.x
 		
-		var newVelocity = delta * speed * forward
+		var newVelocity = speed * forward
 		
 		rpc_id(1, "setControl", translation, newVelocity, newRotation)
 	
